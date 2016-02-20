@@ -14,8 +14,9 @@
 // delete or mark the next line as comment when done with calibration  
 //#define CALIBRATION
 
-// When in calibration mode, adjust the following factor until the servos move exactly 90 degrees
-#define SERVOFAKTOR 600
+// When in calibration mode, adjust the following factors until the servos move exactly 90 degrees
+#define SERVOLEFTFAKTOR 600
+#define SERVORIGHTFAKTOR 600
 
 // Zero-position of left and right servo
 // When in calibration mode, adjust the NULL-values so that the servo arms are at all times parallel
@@ -393,7 +394,7 @@ void set_XY(double Tx, double Ty)
   a1 = atan2(dy, dx); //
   a2 = return_angle(L1, L2, c);
 
-  ServoRight_2.writeMicroseconds(floor(((a2 + a1 - M_PI) * SERVOFAKTOR) + SERVOLEFTNULL));
+  ServoRight_2.writeMicroseconds(floor(((a2 + a1 - M_PI) * SERVOLEFTFAKTOR) + SERVOLEFTNULL));
 
   // calculate joinr arm point for triangle of the right servo arm
   a2 = return_angle(L2, L1, c);
@@ -408,7 +409,7 @@ void set_XY(double Tx, double Ty)
   a1 = atan2(dy, dx);
   a2 = return_angle(L1, (L2 - L3), c);
 
-  ServoLeft_3.writeMicroseconds(floor(((a1 - a2) * SERVOFAKTOR) + SERVORIGHTNULL));
+  ServoLeft_3.writeMicroseconds(floor(((a1 - a2) * SERVORIGHTFAKTOR) + SERVORIGHTNULL));
 
 }
 
