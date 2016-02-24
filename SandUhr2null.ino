@@ -12,19 +12,19 @@
 // time library see http://playground.arduino.cc/Code/time 
 
 // delete or mark the next line as comment when done with calibration  
-//#define CALIBRATION
+#define CALIBRATION
 
 // When in calibration mode, adjust the following factors until the servos move exactly 90 degrees
-#define SERVOLEFTFAKTOR 600
-#define SERVORIGHTFAKTOR 600
+#define SERVOFAKTORLEFT 545
+#define SERVOFAKTORRIGHT 545
 
 // Zero-position of left and right servo
 // When in calibration mode, adjust the NULL-values so that the servo arms are at all times parallel
 // either to the X or Y axis
 
 //von der Servo-Seite aus gesehen!
-#define SERVOLEFTNULL 2100
-#define SERVORIGHTNULL 1000
+#define SERVOLEFTNULL 1650
+#define SERVORIGHTNULL 790
 
 #define SERVOPINLIFT  3
 #define SERVOPINLEFT  4
@@ -46,10 +46,10 @@
 #define L3 9.0
 
 // origin points of left and right servo 
-#define O1X 40
-#define O1Y -30
-#define O2X 62
-#define O2Y -30
+#define O1X 22
+#define O1Y -25
+#define O2X 47
+#define O2Y -25
 
 #define idleX 60
 #define idleY 15
@@ -394,7 +394,7 @@ void set_XY(double Tx, double Ty)
   a1 = atan2(dy, dx); //
   a2 = return_angle(L1, L2, c);
 
-  ServoRight_2.writeMicroseconds(floor(((a2 + a1 - M_PI) * SERVOLEFTFAKTOR) + SERVOLEFTNULL));
+  ServoRight_2.writeMicroseconds(floor(((a2 + a1 - M_PI) * SERVOFAKTORLEFT) + SERVOLEFTNULL));
 
   // calculate joinr arm point for triangle of the right servo arm
   a2 = return_angle(L2, L1, c);
@@ -409,7 +409,7 @@ void set_XY(double Tx, double Ty)
   a1 = atan2(dy, dx);
   a2 = return_angle(L1, (L2 - L3), c);
 
-  ServoLeft_3.writeMicroseconds(floor(((a1 - a2) * SERVORIGHTFAKTOR) + SERVORIGHTNULL));
+  ServoLeft_3.writeMicroseconds(floor(((a1 - a2) * SERVOFAKTORRIGHT) + SERVORIGHTNULL));
 
 }
 
