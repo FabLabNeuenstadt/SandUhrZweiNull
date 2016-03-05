@@ -12,11 +12,11 @@
 // time library see http://playground.arduino.cc/Code/time 
 
 // delete or mark the next line as comment when done with calibration  
-#define CALIBRATION
+//#define CALIBRATION
 
 // When in calibration mode, adjust the following factors until the servos move exactly 90 degrees
-#define SERVOFAKTORLEFT 545
-#define SERVOFAKTORRIGHT 545
+#define SERVOFAKTORLEFT 560
+#define SERVOFAKTORRIGHT 580
 
 // Zero-position of left and right servo
 // When in calibration mode, adjust the NULL-values so that the servo arms are at all times parallel
@@ -24,16 +24,19 @@
 
 //von der Servo-Seite aus gesehen!
 #define SERVOLEFTNULL 1650
-#define SERVORIGHTNULL 790
+#define SERVORIGHTNULL 820
+
+//#define SERVOLEFTNULL 2000
+//#define SERVORIGHTNULL 1150
 
 #define SERVOPINLIFT  3
 #define SERVOPINLEFT  4
 #define SERVOPINRIGHT 5
 
 // lift positions of lifting servo
-#define LIFT0 1530 // on drawing surface
-#define LIFT1 1300  // between numbers
-#define LIFT2 1000  // going towards sweeper
+#define LIFT0 1350 // on drawing surface
+#define LIFT1 1100  // between numbers
+#define LIFT2 900  // going towards sweeper
 
 #define NUMBERSCALE 1.5
 
@@ -54,8 +57,14 @@
 #define idleX 60
 #define idleY 15
 
-#include <Time.h> // see http://playground.arduino.cc/Code/time 
+float OffsetLR = -25;
+
+//#include <Time.h> // see http://playground.arduino.cc/Code/time 
 #include <Servo.h>
+#include <Wire.h> // I2C-Bibliothek einbinden
+#include "RTClib.h" // RTC-Bibliothek einbinden
+
+RTC_DS1307 RTC;      // RTC Modul
 
 int servoLift = LIFT2;
 
@@ -92,26 +101,46 @@ void setup()
 #endif
 
   drawTo(idleX, idleY);
-  setTime(10,6,0,0,0,0);
+
+  Wire.begin();
+  RTC.begin();
+
+  if (! RTC.isrunning()) {
+    
+    // Aktuelles Datum und Zeit setzen, falls die Uhr noch nicht läuft
+    RTC.adjust(DateTime(__DATE__, __TIME__));
+    
+  }
+
+
 } 
 
 void loop() 
 { 
+  DateTime datetime = RTC.now();
+  int minute = datetime.minute();
+  int hour = datetime.hour();
+
+  lift(2);
 
 #ifdef CALIBRATION
 
 // Servohorns will have 90° between movements, parallel to x and y axis
-  lift(LIFT0);
+  drawTo(idleX, idleY);
+//  lift(0);
   drawTo(-3, 29.2);
   delay(1000);
+//  lift(1);
   drawTo(74.1, 28);
   delay(1000);
+//  lift(2);
+//  delay(1000);
 
 #else 
 
 
   int i = 0;
-  if (last_min != minute()) {
+  if (last_min != minute) {
 
 		motor_on(3000);
 
@@ -121,25 +150,27 @@ void loop()
 
     lift(1);
 
-    hour();
-    while ((i+1)*10 <= hour())
+    //hour();
+    while ((i+1)*10 <= hour)
     {
       i++;
     }
 
-    number(0, 22, i, NUMBERSCALE);
-    number(21, 22, (hour()-i*10), NUMBERSCALE);
-    number(40, 22, 11, NUMBERSCALE); // Doppelpunkt
+    number(0 + OffsetLR, 22, i, NUMBERSCALE);
+    number(21 + OffsetLR, 22, (hour-i*10), NUMBERSCALE);
+    number(40 + OffsetLR, 22, 11, NUMBERSCALE); // Doppelpunkt
 
     i=0;
-    while ((i+1)*10 <= minute())
+    while ((i+1)*10 <= minute)
     {
       i++;
     }
-    number(54, 18, i, NUMBERSCALE+0.1);
-    number(70, 16, (minute()-i*10), NUMBERSCALE+0.13);
+    number(54 + OffsetLR, 18, i, NUMBERSCALE+0.1);
+    number(70 + OffsetLR, 16, (minute-i*10), NUMBERSCALE+0.13);
+//    number(54, 18, i, NUMBERSCALE+0.1);
+//    number(70, 16, (minute()-i*10), NUMBERSCALE+0.13);
     lift(2);
-    last_min = minute();
+    last_min = minute;
 
   	drawTo(idleX, idleY);
   	
@@ -412,7 +443,6 @@ void set_XY(double Tx, double Ty)
   ServoLeft_3.writeMicroseconds(floor(((a1 - a2) * SERVOFAKTORRIGHT) + SERVORIGHTNULL));
 
 }
-
 
 
 
